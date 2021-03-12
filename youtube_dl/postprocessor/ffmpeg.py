@@ -304,9 +304,12 @@ class FFmpegExtractAudioPP(FFmpegPostProcessor):
             extension = self._preferredcodec
             more_opts = []
             if self._preferredquality is not None:
-                # The opus codec doesn't support the -aq option
-                if int(self._preferredquality) < 10 and extension != 'opus':
-                    more_opts += ['-q:a', self._preferredquality]
+                if int(self._preferredquality) < 10:
+                    # The opus codec doesn't support the -aq option, so use a sane default
+                    if extension == 'opus':
+                        more_opts += ['-b:a', '192k']
+                    else:
+                        more_opts += ['-q:a', self._preferredquality]
                 else:
                     more_opts += ['-b:a', self._preferredquality + 'k']
             if self._preferredcodec == 'aac':
